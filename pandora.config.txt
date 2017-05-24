@@ -1,15 +1,20 @@
 [Step1]
-refstar=/path/to/STAR-ref
-refbowtie=/path/to/bowtie-ref
-gtf=/path/to/host-gene-features.gtf
+refstar=/ifs/scratch/c2b2/rr_lab/shares/ref/STAR
+refbowtie=/ifs/scratch/c2b2/rr_lab/shares/ref/hg19/faidx/hg19.fa
+gtf=/ifs/scratch/c2b2/rr_lab/if2179/refs/Homo_sapiens.gtf
+#gtf=/ifs/home/c2b2/rr_lab/oe2118/github/Pandora/resources/hg19.refFlat.gtf
+qparam=-N hsep -V -cwd -o log.out -e log.err -l mem=16G,time=12:: -pe smp 4 -R y
 
 [Step2]
+qparam=-N asm -V -cwd -o log.out -e log.err -l mem=10G,time=4:: -pe smp 8 -R y
 
 [Step3]
-blastdb=/path/to/nucleotide-blast/nt-prefix 
+blastdb=/ifs/scratch/c2b2/rr_lab/shares/ref/blastdb/nt-current/nt 
+qparam=-N blst -V -cwd -o log.out -e log.err -l mem=4G,time=8:: 
 
 [Step4]
-pblastdb=/path/to/protein-blast/nr-prefix 
+pblastdb=/ifs/scratch/c2b2/rr_lab/shares/ref/blastdb/nr-current/nr
+qparam=-N orf -V -cwd -o log.out -e log.err -l mem=2G,time=2:: 
 
 [Step5]
-taxid2names=/path/to/names.dmp
+qparam=-N rep -V -cwd -o log.out -e log.err -l mem=1G,time=1::

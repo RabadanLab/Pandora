@@ -12,7 +12,9 @@ import os
 # -------------------------------------
 
 def get_arg():
-    """Get Arguments
+    """
+    Get Arguments
+
     :rtype: object
     """
     # parse arguments

@@ -201,7 +201,7 @@ def makerep(args):
                                  sumdivhost]
             f.write(args.id + '\t' + taxid + '\t' + '\t'.join(mytaxonattributes) + '\n')
     
-    # geneate and write html report
+    # generate and write html report
     if args.taxid2names != 'None':
         makeHTML.generateHTML(
             args.outputdir + '/' + args.taxonreport,

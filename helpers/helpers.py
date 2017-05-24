@@ -236,7 +236,13 @@ def fastajoinlines(infile, outfile, idbase):
 # -------------------------------------
 
 def fastasplit(infile, filename, cutoff):
-    """Split a fasta file to produce a new file per entry such that seq length > cutoff (assume fastajoinlines)"""
+    """
+    Split a fasta file to produce a new file per entry such that seq length > cutoff (assume fastajoinlines)
+
+    infile: input file
+    filename: output file prefix
+    cutoff: contig length threshold
+    """
 
     # a counter for entries
     counter = 0
@@ -254,6 +260,177 @@ def fastasplit(infile, filename, cutoff):
                     f.write(line + '\n')
 
     # return counter for contigs above threshold length
+    return counter
+
+# -------------------------------------
+
+def fastasplit2(infile, filename, cutoff, filesize):
+    """
+    Split a fasta file to produce a new file per entry such that seq length > cutoff (assume fastajoinlines)
+
+    infile: input file
+    filename: output file prefix
+    cutoff: contig length threshold
+    filesize: (roughly) the number of lines per file
+    """
+
+    # a counter for entries
+    counter = 0
+    id = ''
+
+    with open(infile, 'r') as g:
+        for line in g:
+            line = line.rstrip()
+            if line[0] == '>':
+                id = line
+            elif len(line) > cutoff:
+                counter += 1
+                print(str(counter) + "\t" + str(1 + int(counter/filesize)))
+                with open(filename + '_' + str(1 + int(counter/filesize)) + '.fasta', 'a') as f:
+                    f.write(id + '\n')
+                    f.write(line + '\n')
+
+    # return counter for contigs above threshold length
+    return counter
+
+# -------------------------------------
+
+def fastafilter(infile, outfile, cutoff):
+    """
+    Filter a fasta file to produce a new fasta file such that seq length > cutoff (assume fastajoinlines)
+
+    infile: input fasta file
+    outfile: output fasta file
+    cutoff: contig length threshold
+    """
+
+    # a counter for entries
+    counter = 0
+    id = ''
+
+    with open(infile, 'r') as g, open(outfile, 'w') as f:
+        for line in g:
+            line = line.rstrip()
+            if line[0] == '>':
+                id = line
+            elif len(line) > cutoff:
+                counter += 1
+                f.write(id + '\n')
+                f.write(line + '\n')
+
+    # return counter for contigs above threshold length
+    return counter
+
+# -------------------------------------
+
+def fastqfilter(infile, outfile, cutoff):
+    """
+    Filter a fastq file to produce a new fastq file such that seq length > cutoff
+
+    infile: input fastq file
+    outfile: output fastq file
+    cutoff: contig length threshold
+    """
+
+    # a counter
+    counter = 0
+    # a counter for unfiltered entries
+    ecounter = 0
+    fourlinechunk = ''
+    abovecutoff = False
+
+    with open(infile, 'r') as g, open(outfile, 'w') as f:
+        for line in g:
+        # increment counter
+            counter += 1
+
+            # for every new fastq entry
+            if counter % 4 == 1:
+                # write previous if above threshold length
+                if counter > 1 and abovecutoff:
+                    f.write(fourlinechunk)
+                    ecounter += 1
+                # reset variables
+                fourlinechunk = ''
+                abovecutoff = False
+
+            # if sequence line
+            if counter % 4 == 2:
+                if (len(line.rstrip()) > cutoff):
+                    abovecutoff = True
+
+            # increment chunk
+            fourlinechunk += line
+
+        # do the last one
+        if abovecutoff:
+            f.write(fourlinechunk)
+            ecounter += 1
+
+    # return counter for contigs above threshold length
+    return ecounter
+
+# -------------------------------------
+
+def tophitsfilter(infile, outfile):
+    """
+    Filter a blast tsv to get first entry (i.e., top hit) for degenerate groups
+
+    infile: input blast tsv file
+    outfile: output blast tsv file
+    """
+
+    # a counter for entries
+    counter = 0
+    # a list of seen ids
+    seen = []
+
+    with open(infile, 'r') as g, open(outfile, 'w') as f:
+        for line in g:
+            myid = line.split()[0]
+            if myid in seen:
+                continue
+            else:
+                counter += 1
+                f.write(line)
+		seen.append(myid)
+
+    # return counter for number of uniq queries
+    return counter
+
+# -------------------------------------
+
+def getnohits(infile, infile2, outfile):
+    """
+    Get no hits file
+
+    infile: input blast top hits file
+    infile2: input fasta file
+    outfile: output file
+    """
+
+    counter = 0
+    contents = []
+
+    # get list of ids in top hits file
+    with open(infile, 'r') as f:
+        contents = f.read().split('\n')
+    myids = [i.split()[0] for i in contents if i]
+
+    # ASSUME lines of fasta file are joined
+    with open(infile2, 'r') as g, open(outfile, 'w') as f:
+        myid = ''
+        for line in g:
+            # if id line
+            if line[0] == '>':
+                myid = line.strip().split()[0][1:]
+            # if id not in tophits, print entry
+            elif not myid in myids:
+                counter += 1
+                f.write('>' + myid + '\n')
+                f.write(line)
+
+    # return counter for number of entries that didn't blast
     return counter
 
 # -------------------------------------

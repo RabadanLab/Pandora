@@ -9,6 +9,11 @@ import os
 
 # argument is output fastq base name
 fastqbasename = sys.argv[1]
+args_single = sys.argv[2]
+
+# this silly line casts the string False to the boolean value
+if args_single == 'False':
+    args_single = False
 
 # recapitulate:
 # first mate
@@ -30,25 +35,30 @@ fastqbasename = sys.argv[1]
 # 11 1024 0x400 PCR or optical duplicate
 # 12 2048 0x800 supplementary alignment
 
+
 fastq1 = fastqbasename + '_1.fastq'
 fastq2 = fastqbasename + '_2.fastq'
 
-with open(fastq1, 'w') as f:
-    with open(fastq2, 'w') as g:
-        # loop thro std:in
-        for line in sys.stdin:
-            id = line.split()[0]
-            flag = line.split()[1]
-            myread = line.split()[9]
-            qual = line.split()[10]
-        
+with open(fastq1, 'w') as f, open(fastq2, 'w') as g:
+    # loop thro std:in
+    for line in sys.stdin:
+        id = line.split()[0]
+        flag = line.split()[1]
+        myread = line.split()[9]
+        qual = line.split()[10]
+
+        if (args_single):
+            # Ioan: Removing the '/1' read specification before the first '\n' character
+            # possibly a source of formatting errors running Trinity with the --single flag
+            f.write('@' + id + '\n' + myread + '\n' + '+\n' + qual + '\n')
+        else:
             # get the binary value of the flag and bitwise AND with 64 ( i.e, int('1000000',2) )
             # and then shift 6 bits to look at the 7th bit, which tells us if mate 1 (refer to key).
             # I.e., (int('1000000',2) & 64) >> 6 == 1
 
             # if mate 1 read
-	    if (( int(flag) & 64 ) >> 6):
+            if (( int(flag) & 64 ) >> 6):
                 f.write('@' + id + '/1\n' + myread + '\n' + '+\n' + qual + '\n')
             # else if mate 2 read
-	    elif (( int(flag) & 128 ) >> 7):
+            elif (( int(flag) & 128 ) >> 7):
                 g.write('@' + id + '/2\n' + myread + '\n' + '+\n' + qual + '\n')

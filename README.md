@@ -14,7 +14,7 @@ As input, Pandora takes paired fastq files; as output, it produces a report.
 The following programs must be in your `PATH`:
 
 - python 2.7.x
-- [Samtools](http://www.htslib.org/) 1.2 (*note*: samtools 1.3 is not yet supported)
+- [Samtools](http://www.htslib.org/) 1.4 (*note*: use older versions of samtools at your own risk - samtools is often not backwards compatible)
 - [STAR](https://github.com/alexdobin/STAR)
 - [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
@@ -25,6 +25,14 @@ Pandora depends on the following Python modules:
 
 - [Biopython](http://biopython.org/wiki/Main_Page)
 - [Pandas](http://pandas.pydata.org/)
+- scipy
+
+The exact list, with versions, is provided in the `requirements.txt` file.
+And the best way to install these is the usual best practice of starting a [virtualenv](https://virtualenv.pypa.io/en/stable/) and running:
+
+```
+pip install -r requirements.txt
+```
 
 **Workflow**
 
@@ -49,14 +57,14 @@ For `scan` step 1, please provide:
 - (optional) a gtf describing the genes of the host
 
 For `scan` step 3, please provide:
-- [the BLAST nucleotide collection nt database](ftp://ftp.ncbi.nlm.nih.gov/blast/db/)
+- the BLAST nucleotide collection nt database at ftp://ftp.ncbi.nlm.nih.gov/blast/db/
 
 For `scan` step 4, you can optionally provide:
-- [the BLAST protein collection nr database](ftp://ftp.ncbi.nlm.nih.gov/blast/db/)
+- the BLAST protein collection nr database at ftp://ftp.ncbi.nlm.nih.gov/blast/db/
 
 For `scan` step 5, you can optionally provide:
 - a text file of "blacklist" non-pathogen taxids for filtering. If you do not provide one, the script will use `resources/blacklist.txt` by default. This list contains any taxid children of the nodes chordata (Taxonomy ID: 7711) or "other sequences" (Taxonomy ID: 28384)
-- the names.dmp file mapping taxID to names from [ncbi](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz)
+- the `names.dmp` file mapping taxID to names from ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 Because there are a considerable number of files involved, you can specify their paths with a configuration file instead of command line flags.
 See `pandora.config.txt` for example formatting.

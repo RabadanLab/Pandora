@@ -13,7 +13,8 @@ import shutil
 # -------------------------------------
 
 def get_arg():
-    """Get Arguments
+    """
+    Get Arguments
     :rtype: object
     """
     # parse arguments
@@ -27,6 +28,7 @@ def get_arg():
     parser.add_argument('--noclean', type=int, default=0, help='do not delete temporary intermediate files (default: off)')
     parser.add_argument('--verbose', type=int, default=0, help='verbose mode: echo commands, etc (default: off)')
     parser.add_argument('--threshold', type=int, default=0, help='the length threshold')
+    parser.add_argument('--filelength', type=int, default=50, help='the number of rows per split file')
     parser.add_argument('--db', help='the database prefix')
     parser.add_argument('--whichblast', default='blastn', choices=['blastn', 'blastp'], help='which blast to use (blastn, blastp)')
     parser.add_argument('--threads', default='1', help='blast -num_threads option')
@@ -65,39 +67,56 @@ def blast(args):
 
     # mkdir -p 
     hp.mkdirp(args.outputdir)
-    hp.mkdirp(args.logsdir)
 
-    # split fasta file on contigs above threshold length (and return count)
-    filecount = hp.fastasplit(args.input, args.outputdir + '/blast', args.threshold)
-
-    if filecount == 0:
-        print("No contigs above threshold. Exiting")
-        sys.exit(1)
+    args.noclean = int(args.noclean)
 
     # generate header
     with open(args.outputdir + '/header', 'w') as f:
         f.write(args.fmt.replace(' ', '\t') + '\n')
 
-    args.noclean = int(args.noclean)
-
     # if no qsub
     if args.nosge:
-        for i in range(1,filecount+1):
-            # define log files
-            logs_out = args.logsdir + '/' + 'bc_' + args.id + '.' + str(i) + '.o'
-            logs_err = args.logsdir + '/' + 'bc_' + args.id + '.' + str(i) + '.e'
-	    # define command: run blast in series (this will be slow!)
-            cmd = '{args.scripts}/scripts/blast.py --scripts {args.scripts} --outputdir {args.outputdir} --whichblast {args.whichblast} --db {args.db} --threads {args.threads} --fmt "{args.fmt}" --sgeid {i} > {o} 2> {e}'.format(args=args, i=str(i), o=logs_out, e=logs_err)
-            hp.run_cmd(cmd, args.verbose, 0)
+        # filter fasta file on contigs above threshold length and hardcode name for blast.py
+        # (splitting files doesnt make sense if no cluster)
+        filecount = hp.fastafilter(args.input, args.outputdir + '/blast_1.fasta', args.threshold)
 
-        # concatenate results
-        concat(args)
+        if filecount == 0:
+            print("No contigs above threshold. Exiting")
+            sys.exit(1)
+
+        # define log files
+        logs_out = args.outputdir + '/' + 'blast_log_' + args.id + '.o'
+        logs_err = args.outputdir + '/' + 'blast_log_' + args.id + '.e'
+        # define command
+        cmd = '{args.scripts}/scripts/blast.py --scripts {args.scripts} --outputdir {args.outputdir} --whichblast {args.whichblast} --db {args.db} --threads {args.threads} --fmt "{args.fmt}" --sgeid 1 > {o} 2> {e}'.format(args=args, o=logs_out, e=logs_err)
+        hp.run_cmd(cmd, args.verbose, 0)
+
+        # make link
+        cmd = 'ln -s blast_1.result {args.outputdir}/concat.txt'.format(args=args)
+        hp.run_cmd(cmd, args.verbose, 0)
+
+        # get top hits
+        hp.tophitsfilter(args.outputdir + '/blast_1.result', args.outputdir + '/top.concat.txt')
+        # get fasta file of entries that didn't blast
+        hp.getnohits(args.outputdir + '/top.concat.txt', args.outputdir + '/blast_1.fasta', args.outputdir + '/no_blastn.fa')
+
+    # if qsub
     else:
+        # mkdir -p
+        hp.mkdirp(args.logsdir)
+
+        # split fasta file on contigs above threshold length (and return count)
+        filecount = hp.fastasplit2(args.input, args.outputdir + '/blast', args.threshold, args.filelength)
+
+        if filecount == 0:
+            print("No contigs above threshold. Exiting")
+            sys.exit(1)
+
         # qsub part of command (array job)
         qcmd = 'qsub -S {mypython} -N bc_{args.id} -e {args.logsdir} -o {args.logsdir} -t 1-{filecount} '.format(mypython=sys.executable, args=args, filecount=filecount)
         # regular part of command
         cmd = '{args.scripts}/scripts/blast.py --scripts {args.scripts} --outputdir {args.outputdir} --whichblast {args.whichblast} --db {args.db} --threads {args.threads} --fmt "{args.fmt}"'.format(args=args)
-	if args.verbose:
+        if args.verbose:
             print(qcmd + cmd)
         message = subprocess.check_output(qcmd + cmd, shell=True)
         print(message)
@@ -140,7 +159,7 @@ def concat(args):
 
     for f in files: 
         # get file length
-	cmd = 'cat ' + f + ' | wc -l'
+        cmd = 'cat ' + f + ' | wc -l'
         len = subprocess.check_output(cmd, shell=True).strip()
 
         # get the name of the fasta file (remove last 6 characters 'result')
@@ -153,14 +172,14 @@ def concat(args):
             for line in h:
                 fastafile.write(line)
 
-	# if length of file is zero
+        # if length of file is zero
         if len == '0':
             noblast.append(os.path.basename(f))
             # cat ${base}.fasta | sed s/X//g
             with open(g, 'r') as h:
                 for line in h:
                     noblastfile.write(line)
-	# else write tophits file
+        # else write tophits file
         else:
             with open(f, 'r') as h:
                 tophitsfile.write(h.readline())
