@@ -94,7 +94,7 @@ def hostsep(args):
 
     print('find unmapped reads')
 
-    cmd = 'samtools flagstat {args.outputdir}/Aligned.out.bam > {args.outputdir}/mapping_stats.txt'.format(args=args)
+    cmd = 'samtools flagstat {args.outputdir}/Aligned.out.bam > {args.outputdir}/mapping_stats.STAR.txt'.format(args=args)
     hp.run_cmd(cmd, args.verbose, 0)
 
     # bin(13) = '0b1101', which corresponds to SAM flag bits:
@@ -125,6 +125,9 @@ def hostsep(args):
     hp.run_log_cmd(cmd, args.verbose, args.olog, args.elog)
 
     print('Bowtie2 mapping finished')
+
+    cmd = 'samtools flagstat {args.outputdir}/bwt2.sam > {args.outputdir}/mapping_stats.bwt.txt'.format(args=args)
+    hp.run_cmd(cmd, args.verbose, 0)
 
     print('find unmapped reads')
 
