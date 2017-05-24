@@ -28,6 +28,7 @@ def get_arg():
     parser.add_argument('--noclean', type=int, default=0, help='do not delete temporary intermediate files (default: off)')
     parser.add_argument('--verbose', type=int, default=0, help='verbose mode: echo commands, etc (default: off)')
     parser.add_argument('--threshold', type=int, default=0, help='the length threshold')
+    parser.add_argument('--filelength', type=int, default=50, help='the number of rows per split file')
     parser.add_argument('--db', help='the database prefix')
     parser.add_argument('--whichblast', default='blastn', choices=['blastn', 'blastp'], help='which blast to use (blastn, blastp)')
     parser.add_argument('--threads', default='1', help='blast -num_threads option')
@@ -105,7 +106,7 @@ def blast(args):
         hp.mkdirp(args.logsdir)
 
         # split fasta file on contigs above threshold length (and return count)
-        filecount = hp.fastasplit(args.input, args.outputdir + '/blast', args.threshold)
+        filecount = hp.fastasplit2(args.input, args.outputdir + '/blast', args.threshold, args.filelength)
 
         if filecount == 0:
             print("No contigs above threshold. Exiting")
