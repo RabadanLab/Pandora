@@ -60,6 +60,7 @@ def get_arg():
     parser_scan.add_argument('-db', '--blastdb', help='blast (nt) database (contigs are the query set)')
     parser_scan.add_argument('--map_threads', default='4', help='number of threads for the short read alignment (default: 4)')
     parser_scan.add_argument('--blast_threads', default='1', help='number of threads for the blast (blast -num_threads) (default: 1)')
+    parser_scan.add_argument('--blastchunk', default='50', help='the number of rows per split file for blast')
     parser_scan.add_argument('-pdb', '--pblastdb', help='blast protein (nr) database (ORFs are the query set)')
     parser_scan.add_argument('-gtf', '--gtf', help='optional host gft for computing gene coverage after host separation')
 
@@ -218,7 +219,7 @@ def scan_main(args):
     d = {
              '1': '{args.scripts}/scripts/host_separation.py --scripts {args.scripts} -1 {args.mate1} -2 {args.mate2} --bam {args.bam} --threads {args.map_threads} --single {args.single} --refstar {args.refstar} --refbowtie {args.refbowtie} --gzip {args.gzip} --verbose {args.verbose} --noclean {args.noclean} --gtf {args.gtf}'.format(args=args),
              '2': '{args.scripts}/scripts/assembly.py --scripts {args.scripts} --single {args.single} --trinitymem {args.trinitymem} --trinitycores {args.trinitycores} --trinitythreshold {args.trinitycontigthreshold} --verbose {args.verbose} --noclean {args.noclean}'.format(args=args),
-             '3': '{args.scripts}/scripts/blast_wrapper.py --scripts {args.scripts} --threshold {args.contigthreshold} --db {args.blastdb} --threads {args.blast_threads} --id {args.identifier} --verbose {args.verbose} --noclean {args.noclean} --nosge {args.noSGE}'.format(args=args),
+             '3': '{args.scripts}/scripts/blast_wrapper.py --scripts {args.scripts} --threshold {args.contigthreshold} --db {args.blastdb} --threads {args.blast_threads} --id {args.identifier} --filelength {args.blastchunk} --verbose {args.verbose} --noclean {args.noclean} --nosge {args.noSGE}'.format(args=args),
              '4': '{args.scripts}/scripts/orf_discovery.py --scripts {args.scripts} --id {args.identifier} --threshold {args.orfthreshold} --db {args.pblastdb} --blast {args.orfblast} --verbose {args.verbose} --noclean {args.noclean}'.format(args=args),
              '5': '{args.scripts}/scripts/makereport.py --scripts {args.scripts} --id {args.identifier} --verbose {args.verbose} --blacklist {args.blacklist} --taxid2names {args.taxid2names}'.format(args=args)
     }
