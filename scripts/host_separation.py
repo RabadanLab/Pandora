@@ -185,6 +185,9 @@ def getunmapped(args):
 
     # fix violations of DRY (modify args variable)
 
+    cmd = 'samtools flagstat {args.bam} > {args.outputdir}/mapping_stats.STAR.txt'.format(args=args)
+    hp.run_cmd(cmd, args.verbose, 0)
+
     print('find unmapped reads')
 
     if (args.single):
@@ -200,7 +203,7 @@ def getunmapped(args):
     ## filter short reads
     for i in ['1', '2']:
         if i=='1' or not (args.single):
-            hp.fastqfiler(
+            hp.fastqfilter(
                 '{args.outputdir}/tmp_unmapped_{i}.fastq'.format(args=args, i=i), 
                 '{args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i), 
                 args.readlenfilter
