@@ -150,11 +150,11 @@ def hostsep(args):
     for i in ['1', '2']:
         if i=='1' or not (args.single):
             # Ioan found Trinity chokes if read length <= jellyfish kmer of 25
-            hp.fastqfilter(
-                '{args.outputdir}/bwt2_unmapped_{i}.fastq'.format(args=args, i=i), 
-                '{args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i), 
-                args.readlenfilter
-            )
+            #hp.fastqfilter(
+            #    '{args.outputdir}/bwt2_unmapped_{i}.fastq'.format(args=args, i=i), 
+            #    '{args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i), 
+            #    args.readlenfilter
+            #)
             ## zipping the files
             cmd = 'gzip {args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i)
             hp.run_cmd(cmd, args.verbose, 0)
