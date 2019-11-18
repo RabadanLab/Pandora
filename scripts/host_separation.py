@@ -147,18 +147,21 @@ def hostsep(args):
 
     ## rename and zip both mates, or single mate if unpaired reads
     ## Ioan: filter short reads
-    for i in ['1', '2']:
-        if i=='1' or not (args.single):
+    #for i in ['1', '2']:
+        #if i=='1' or not (args.single):
             # Ioan found Trinity chokes if read length <= jellyfish kmer of 25
             #hp.fastqfilter(
             #    '{args.outputdir}/bwt2_unmapped_{i}.fastq'.format(args=args, i=i), 
             #    '{args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i), 
             #    args.readlenfilter
             #)
-            ## zipping the files
-            cmd = 'gzip {args.outputdir}/unmapped_{i}.fastq'.format(args=args, i=i)
-            hp.run_cmd(cmd, args.verbose, 0)
-
+    if args.single:
+        cmd = 'java -jar trimmomatic.jar SE -threads {args.threads} -phred33 -trimlog {args.outputdir}/log.trimmomatic {args.outputdir}/bwt2_unmapped_1.fastq {args.outputdir}/unmapped_1.fastq.gz ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 MINLEN:26'.format(args=args)
+        hp.run_cmd(cmd, args.verbose, 0)
+    else:
+        cmd = 'java -jar trimmomatic.jar PE -threads {args.threads} -phred33 -trimlog {args.outputdir}/log.trimmomatic {args.outputdir}/bwt2_unmapped_1.fastq {args.outputdir}/bwt2_unmapped_2.fastq {args.outputdir}/unmapped_1.fastq.gz  {args.outputdir}/trimmed_unmapped_1.fq.gz  {args.outputdir}/unmapped_2.fastq.gz  {args.outputdir}/trimmed_unmapped_2.fq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:26'.format(args=args)
+        hp.run_cmd(cmd, args.verbose, 0)
+ 
     # if gtf variable set, get gene coverage
     if args.gtf:
         print('featureCounts commenced')
