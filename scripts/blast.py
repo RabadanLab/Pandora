@@ -39,7 +39,8 @@ def get_arg():
     args = parser.parse_args()
 
     # add key-value pairs to the args dict
-    vars(args)['input'] = args.outputdir + '/blast_' + args.sgeid + '.fasta'
+    vars(args)['input1'] = args.outputdir + '/blast_1' + '.fasta'
+    vars(args)['input2'] = args.outputdir + '/blast_2' + '.fasta'
     vars(args)['step'] = 'blast'
 
     # need this to get local modules
@@ -68,8 +69,8 @@ def blastnp(args):
         flag = '-task blastp-fast'
 
     # do blastn or blastp
-    cmd = '{args.whichblast} -outfmt "6 {args.fmt}" -query {args.input} -db {args.db} -num_threads {args.threads} {flag} > {args.outputdir}/blast_{args.sgeid}.result'.format(args=args, flag=flag)
-    hp.run_cmd(cmd, args.verbose, 0)
+    cmd1 = '{args.whichblast} -outfmt "6 {args.fmt}" -query {args.input1} -db {args.db} -num_threads {args.threads} {flag} > {args.outputdir}/blast_1.result'.format(args=args, flag=flag)
+    cmd2 = '{args.whichblast} -outfmt "6 {args.fmt}" -query {args.input2} -db {args.db} -num_threads {args.threads} {flag} > {args.outputdir}/blast_2.result'.format(args=args, flag=flag)
 
     hp.echostep(args.step, start=0)
 

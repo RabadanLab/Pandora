@@ -237,7 +237,7 @@ def fastajoinlines(infile, outfile, idbase):
 
 def fastasplit(infile, filename, cutoff):
     """
-    Split a fasta file to produce a new file per entry such that seq length > cutoff (assume fastajoinlines)
+    Split a fasta file into two such that seq length > cutoff (assume fastajoinlines)
 
     infile: input file
     filename: output file prefix
@@ -247,6 +247,10 @@ def fastasplit(infile, filename, cutoff):
     # a counter for entries
     counter = 0
     id = ''
+    filenames = [ ]
+    filenames.append(filename +  '_' +  1 + '.fasta')
+    filenames.append(filename +  '_' +  2 + '.fasta')
+    current = 0
 
     with open(infile, 'r') as g:
         for line in g:
@@ -255,12 +259,14 @@ def fastasplit(infile, filename, cutoff):
                 id = line
             elif len(line) > cutoff:
                 counter += 1
-                with open(filename + '_' + str(counter) + '.fasta', 'w') as f:
+                # print(str(counter) + "\t" + str(1 + int(counter/filesize)))
+                with open(filenames[current], 'a') as f:
                     f.write(id + '\n')
                     f.write(line + '\n')
+                    current = 0 if current else 1
 
-    # return counter for contigs above threshold length
-    return counter
+    # return (counter for contigs above threshold length, number of files)
+    return (counter, 2)
 
 # -------------------------------------
 

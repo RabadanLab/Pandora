@@ -85,11 +85,14 @@ def blast(args):
     if args.nosge:
         # filter fasta file on contigs above threshold length and hardcode name for blast.py
         # (splitting files doesnt make sense if no cluster)
-        filecount = hp.fastafilter(args.input, args.outputdir + '/blast_1.fasta', args.threshold)
+        (numcontigs, filecount) = hp.fastasplit(args.input, args.outputdir + '/blast', args.threshold)
 
         if filecount == 0:
             print("No contigs above threshold. Exiting")
             sys.exit(1)
+        else:
+            print("There are " + str(numcontigs) + " contigs above threshold, and " + str(filecount) + " files to blast.")
+
 
         # define log files
         logs_out = args.outputdir + '/' + 'blast_log_' + args.id + '.o'
@@ -98,13 +101,6 @@ def blast(args):
         cmd = '{args.scripts}/scripts/blast.py --scripts {args.scripts} --outputdir {args.outputdir} --whichblast {args.whichblast} --db {args.db} --threads {args.threads} --fmt "{args.fmt}" --sgeid 1 > {o} 2> {e}'.format(args=args, o=logs_out, e=logs_err)
         hp.run_cmd(cmd, args.verbose, 0)
 
-        # make link
-        #cmd = 'ln -s blast_1.result {args.outputdir}/concat.txt'.format(args=args)
-        #hp.run_cmd(cmd, args.verbose, 0)
-        # get top hits
-        #hp.tophitsfilter(args.outputdir + '/blast_1.result', args.outputdir + '/top.concat.txt')
-        # get fasta file of entries that didn't blast
-        #hp.getnohits(args.outputdir + '/top.concat.txt', args.outputdir + '/blast_1.fasta', args.outputdir + '/no_blastn.fa')
 
         # now filter blast results
         concat(args)
