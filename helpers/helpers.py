@@ -248,8 +248,8 @@ def fastasplit(infile, filename, cutoff):
     counter = 0
     id = ''
     filenames = [ ]
-    filenames.append(filename +  '_' +  1 + '.fasta')
-    filenames.append(filename +  '_' +  2 + '.fasta')
+    filenames.append(filename +  '_' + str(1) + '.fasta')
+    filenames.append(filename +  '_' +  str(2) + '.fasta')
     current = 0
 
     with open(infile, 'r') as g:
