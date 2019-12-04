@@ -28,7 +28,7 @@ for i in {1..2}; do
 	echo "input "${input}
 	echo "output "${output}
 	
-	{ ${blast_type} -outfmt ${fmt} -query ${input} -db ${db} -num_threads $((${threads}/2)) > ${output} & }
+	{ ${blast_type} -outfmt "${fmt}" -query ${input} -db ${db} -num_threads $((${threads}/2)) > ${output} & }
 	pids[${i}]=$!
 done
 
