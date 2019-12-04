@@ -68,7 +68,7 @@ def blastnp(args):
         flag = '-task blastp-fast'
 
     # do blastn or blastp
-    cmd = '{args.scripts}/blast_2.sh {args.whichblast} {args.prefix} {args.db} {args.threads}'.format(args=args, flag=flag)
+    cmd = '{args.scripts}/scripts/blast_2.sh {args.whichblast} {args.prefix} {args.db} {args.threads}'.format(args=args, flag=flag)
     hp.run_cmd(cmd, args.verbose, 0)
     hp.echostep(args.step, start=0)
 
