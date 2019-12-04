@@ -48,8 +48,8 @@ def get_arg():
     from helpers import helpers as hp
 
     # error checking: exit if previous step produced zero output
-    for i in [args.input]:
-        hp.check_file_exists_and_nonzero(i, step=args.step)
+    hp.check_file_exists_and_nonzero(args.prefix + '_1.fasta', step=args.step)
+    hp.check_file_exists_and_nonzero(args.prefix + '_2.fasta', step=args.step)
 
     return args
 

@@ -87,7 +87,7 @@ def blast(args):
         # (splitting files doesnt make sense if no cluster)
         (numcontigs, filecount) = hp.fastasplit(args.input, args.outputdir + '/blast', args.threshold)
 
-        if filecount == 0:
+        if numcontigs == 0:
             print("No contigs above threshold. Exiting")
             sys.exit(1)
         else:
