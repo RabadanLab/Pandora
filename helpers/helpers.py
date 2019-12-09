@@ -248,8 +248,8 @@ def fastasplit(infile, filename, cutoff):
     counter = 0
     id = ''
     filenames = [ ]
-    filenames.append(filename +  '_' + str(1) + '.fasta')
-    filenames.append(filename +  '_' +  str(2) + '.fasta')
+    filenames.append(filename +  '_1.fasta')
+    filenames.append(filename +  '_2.fasta')
     current = 0
 
     with open(infile, 'r') as g:
@@ -258,12 +258,12 @@ def fastasplit(infile, filename, cutoff):
             if line[0] == '>':
                 id = line
             elif len(line) > cutoff:
+                current = 0 if current == 1 else 1
                 counter += 1
                 # print(str(counter) + "\t" + str(1 + int(counter/filesize)))
                 with open(filenames[current], 'a') as f:
                     f.write(id + '\n')
                     f.write(line + '\n')
-                    current = 0 if current else 1
 
     # return (counter for contigs above threshold length, number of files)
     return (counter, 2)
