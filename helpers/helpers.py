@@ -301,6 +301,42 @@ def fastasplit2(infile, filename, cutoff, filesize):
 
 # -------------------------------------
 
+def fastasplit3(infile, filename, cutoff):
+    """
+    Split a fasta file into two such that seq length > cutoff (assume fastajoinlines)
+
+    infile: input file
+    filename: output file prefix
+    cutoff: contig length threshold
+    """
+
+    # a counter for entries
+    counter = 0
+    id = ''
+    filenames = [ ]
+    filenames.append(filename +  '_1.fasta')
+    filenames.append(filename +  '_2.fasta')
+    filenames.append(filename +  '_3.fasta')
+    filenames.append(filename +  '_4.fasta')
+
+    with open(infile, 'r') as g:
+        for line in g:
+            line = line.rstrip()
+            if line[0] == '>':
+                id = line
+            elif len(line) > cutoff:
+                current = counter % 4
+                counter += 1
+                # print(str(counter) + "\t" + str(1 + int(counter/filesize)))
+                with open(filenames[current], 'a') as f:
+                    f.write(id + '\n')
+                    f.write(line + '\n')
+
+    # return (counter for contigs above threshold length, number of files)
+    return (counter, 4)
+
+# -------------------------------------
+
 def fastafilter(infile, outfile, cutoff):
     """
     Filter a fasta file to produce a new fasta file such that seq length > cutoff (assume fastajoinlines)

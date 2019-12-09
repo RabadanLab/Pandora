@@ -85,7 +85,7 @@ def blast(args):
     if args.nosge:
         # filter fasta file on contigs above threshold length and hardcode name for blast.py
         # (splitting files doesnt make sense if no cluster)
-        (numcontigs, filecount) = hp.fastasplit(args.input, args.outputdir + '/blast', args.threshold)
+        (numcontigs, filecount) = hp.fastasplit3(args.input, args.outputdir + '/blast', args.threshold)
 
         if numcontigs == 0:
             print("No contigs above threshold. Exiting")

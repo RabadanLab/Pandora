@@ -50,6 +50,8 @@ def get_arg():
     # error checking: exit if previous step produced zero output
     hp.check_file_exists_and_nonzero(args.prefix + '_1.fasta', step=args.step)
     hp.check_file_exists_and_nonzero(args.prefix + '_2.fasta', step=args.step)
+    hp.check_file_exists_and_nonzero(args.prefix + '_3.fasta', step=args.step)
+    hp.check_file_exists_and_nonzero(args.prefix + '_4.fasta', step=args.step)
 
     return args
 

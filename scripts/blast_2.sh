@@ -18,7 +18,7 @@ fmt="6 qseqid sseqid saccver staxids pident nident length mismatch gapopen gaps 
 
 echo [database] ${db}
 
-for i in {1..2}; do
+for i in {1..4}; do
 	
 	echo ${i}
 
@@ -28,7 +28,7 @@ for i in {1..2}; do
 	echo "input "${input}
 	echo "output "${output}
 	
-	{ ${blast_type} -outfmt "${fmt}" -query ${input} -db ${db} -num_threads $((${threads}/2)) > ${output} & }
+	{ ${blast_type} -outfmt "${fmt}" -query ${input} -db ${db} -num_threads $((${threads}/4)) > ${output} & }
 	pids[${i}]=$!
 done
 
